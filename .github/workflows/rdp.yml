@@ -19,4 +19,4 @@ jobs:
         Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "Pa$$w0rd" -Force)
     - name: Create frp tunnel to remote desktop
       run: |
-        .\frp_0.61.0_windows_amd64\frpc.exe tcp -n rdp -s $Env:FRP_SERVER -P 7000 -l 3389 -r 7001
+        .\frp\frp_0.61.0_windows_amd64\frpc.exe tcp -n rdp -s $Env:FRP_SERVER -P 7000 -l 3389 -r 7001
