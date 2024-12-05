@@ -1,0 +1,36 @@
+name: Build Win7 release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build
+        required: true
+      version:
+        description: Version being built
+        required: true
+
+jobs:
+  build:
+    name: build
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Build Python release
+        shell: cmd
+        run: |
+          .\Tools\msi\buildrelease.bat -x64 --skip-pgo --skip-nuget --skip-doc
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            PCbuild/amd64/en-us/*.exe
+            PCbuild/amd64/en-us/*.zip
+          name: Python ${{ inputs.version }} Windows 7
+          tag_name: ${{ inputs.tag }}
+          fail_on_unmatched_files: true
