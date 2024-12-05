@@ -7,19 +7,16 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Download ngrok
-      run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract ngrok
-      run: Expand-Archive ngrok.zip
-    - name: Authenticate with ngrok
-      run: .\ngrok\ngrok.exe config add-authtoken $Env:NGROK_AUTH_TOKEN
-      env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Download frp
+      run: Invoke-WebRequest https://github.com/fatedier/frp/releases/download/v0.61.0/frp_0.61.0_windows_amd64.zip -OutFile frp.zip
+    - name: Extract frp
+      run: Expand-Archive frp.zip
     - name: Enable Remote Desktop
       run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
         Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "Pa$$w0rd" -Force)
-    - name: Create ngrok tunnel to remote desktop
-      run: .\ngrok\ngrok.exe tcp 3389
+    - name: Create frp tunnel to remote desktop
+      run: |
+        .\frp_0.61.0_windows_amd64\frpc.exe tcp -n rdp -s $Env:FRP_SERVER -P 7000 -l 3389 -r 7001
